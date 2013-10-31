@@ -1,6 +1,9 @@
 module.exports = function(grunt) {
+  require('time-grunt')(grunt);
+
   // load all grunt tasks matching the `grunt-*` pattern
   require('load-grunt-tasks')(grunt);
+
   // load the Intern tasks
   grunt.loadNpmTasks('intern');
 
