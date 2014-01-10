@@ -12,19 +12,26 @@ define([
   'tests/mocks/request',
   'client/lib/request',
   'components/p/p'
-], function (tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Request, p) {
+], function (config, tdd, assert, FxAccountClient, XHR, SinonResponder, RequestMocks, Request, p) {
 
   with (tdd) {
     suite('fxa client', function () {
-      // TODO read this from some platform independent config
-      var baseUri = 'http://127.0.0.1:9000/v1';
-      //var baseUri = 'https://api-accounts-latest.dev.lcip.org/v1';
-      var useRemoteServer = false;
+      var authServerUrl = config.AUTH_SERVER_URL || 'http://127.0.0.1:9000/v1';
+      var useRemoteServer = !!config.AUTH_SERVER_URL;
+      var mailServerUrl = authServerUrl.match(/^http:\/\/127/) ?
+                            'http://127.0.0.1:9001' :
+                            'http://restmail.net';
       var client;
       var restmailClient;
       var respond;
 
       function noop(val) { return val; }
+
+      if (!useRemoteServer) {
+        console.log("Running with mocks..");
+      } else {
+        console.log("Running against " + authServerUrl);
+      }
 
       beforeEach(function () {
         var xhr;
@@ -40,8 +47,8 @@ define([
           };
           respond = makeMockResponder(requests);
         }
-        client = new FxAccountClient(baseUri, { xhr: xhr });
-        restmailClient = new Request('http://restmail.net', xhr);
+        client = new FxAccountClient(authServerUrl, { xhr: xhr });
+        restmailClient = new Request(mailServerUrl, xhr);
       });
 
       /**
@@ -80,15 +87,10 @@ define([
       test('#sign in with keys', function () {
         var email = "test" + Date.now() + "@restmail.net";
         var password = "iliketurtles";
-        var signUpRequest =  client.signUp(email, password)
+
+        return respond(client.signUp(email, password), RequestMocks.signUp)
           .then(function (res) {
-            var signInRequest = client.signIn(email, password, {keys: true});
-
-            setTimeout(function() {
-              SinonResponder.respond(requests[1], RequestMocks.signInWithKeys);
-            }, 200);
-
-            return signInRequest;
+            return respond(client.signIn(email, password, {keys: true}), RequestMocks.signInWithKeys);
           })
           .then(function (res) {
             assert.ok(res.sessionToken);
@@ -96,12 +98,6 @@ define([
             assert.ok(res.unwrapBKey);
             return true;
           });
-
-        setTimeout(function() {
-          SinonResponder.respond(requests[0], RequestMocks.signUp);
-        }, 200);
-
-        return signUpRequest;
       });
 
       /**
@@ -186,52 +182,31 @@ define([
         var passwordForgotToken;
         var accountResetToken;
 
-        setTimeout(function() {
-          SinonResponder.respond(requests[0], RequestMocks.signUp);
-        }, 200);
-
-        return client.signUp(email, password)
+        return respond(client.signUp(email, password), RequestMocks.signUp)
           .then(function (result) {
             uid = result.uid;
             assert.ok(uid, "uid is returned");
 
-            setTimeout(function() {
-              SinonResponder.respond(requests[1], RequestMocks.passwordForgotSendCode);
-            }, 200);
-
-            return client.passwordForgotSendCode(email);
+            return respond(client.passwordForgotSendCode(email), RequestMocks.passwordForgotSendCode);
           })
           .then(function (result) {
             passwordForgotToken = result.passwordForgotToken;
             assert.ok(passwordForgotToken, "passwordForgotToken is returned");
 
-            setTimeout(function() {
-              SinonResponder.respond(requests[2], RequestMocks.resetMail);
-            }, 200);
-
-            return waitForEmail(user, 2);
+            return respond(waitForEmail(user, 2), RequestMocks.resetMail);
           })
           .then(function (emails) {
-
             var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
             assert.ok(code, "code is returned: " + code);
 
-            setTimeout(function() {
-              SinonResponder.respond(requests[3], RequestMocks.passwordForgotVerifyCode);
-            }, 200);
-
-            return client.passwordForgotVerifyCode(code, passwordForgotToken);
+            return respond(client.passwordForgotVerifyCode(code, passwordForgotToken), RequestMocks.passwordForgotVerifyCode);
           })
           .then(function (result) {
             accountResetToken = result.accountResetToken;
             var newPassword = 'newturles';
-
             assert.ok(accountResetToken, "accountResetToken is returned");
-            setTimeout(function() {
-              SinonResponder.respond(requests[4], RequestMocks.accountReset);
-            }, 200);
 
-            return client.accountReset(email, newPassword, accountResetToken);
+            return respond(client.accountReset(email, newPassword, accountResetToken), RequestMocks.accountReset);
           })
           .then(function (result) {
             assert.ok(result, '{}');
