@@ -10,7 +10,11 @@
     "setup": "npm install && bower install && grunt sjcl"
   },
   "main": "node/index.js",
-  "files": ["node/", "client/", "LICENSE"],
+  "files": [
+    "node/",
+    "client/",
+    "LICENSE"
+  ],
   "readmeFilename": "README.md",
   "homepage": "https://github.com/mozilla/fxa-js-client",
   "engines": {
@@ -42,7 +46,8 @@
     "grunt-copyright": "~0.1.0",
     "grunt-jscs-checker": "~0.3.2",
     "grunt-open": "~0.2.2",
-    "intern": "~1.4.0",
-    "load-grunt-tasks": "~0.2.0"
+    "intern-geezer": "~1.5.0",
+    "load-grunt-tasks": "~0.2.0",
+    "http-proxy": "^1.0.2"
   }
 }

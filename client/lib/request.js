@@ -57,29 +57,32 @@ define(['./hawk', 'p', './errors'], function (hawk, p, ERRORS) {
     xhr.onerror = function onerror() {
       deferred.reject(xhr.responseText);
     };
-    xhr.onload = function onload() {
-      var result = xhr.responseText;
-      try {
-        result = JSON.parse(xhr.responseText);
-      } catch (e) { }
 
-      if (result.errno) {
-        // Try to recover from a timeskew error and not already tried
-        if (result.errno === ERRORS.INVALID_TIMESTAMP && !options.retrying) {
-          var serverTime = result.serverTime;
-          self._localtimeOffsetMsec = (serverTime * 1000) - new Date().getTime();
+    xhr.onreadystatechange = function() {
+      if (xhr.readyState === 4) {
+        var result = xhr.responseText;
+        try {
+          result = JSON.parse(xhr.responseText);
+        } catch (e) { }
 
-          // add to options that the request is retrying
-          options.retrying = true;
+        if (result.errno) {
+          // Try to recover from a timeskew error and not already tried
+          if (result.errno === ERRORS.INVALID_TIMESTAMP && !options.retrying) {
+            var serverTime = result.serverTime;
+            self._localtimeOffsetMsec = (serverTime * 1000) - new Date().getTime();
 
-          return self.send(path, method, credentials, jsonPayload, options)
-            .then(deferred.resolve, deferred.reject);
+            // add to options that the request is retrying
+            options.retrying = true;
 
-        } else {
-          return deferred.reject(result);
+            return self.send(path, method, credentials, jsonPayload, options)
+              .then(deferred.resolve, deferred.reject);
+
+          } else {
+            return deferred.reject(result);
+          }
         }
+        deferred.resolve(result);
       }
-      deferred.resolve(result);
     };
 
     // calculate Hawk header if credentials are supplied

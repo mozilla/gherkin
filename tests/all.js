@@ -6,7 +6,6 @@ define([
   'tests/lib/signUp',
   'tests/lib/signIn',
   'tests/lib/verifyCode',
-  'tests/lib/request',
   'tests/lib/hkdf',
   'tests/lib/credentials',
   'tests/lib/hawkCredentials',
