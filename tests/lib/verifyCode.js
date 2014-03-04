@@ -28,7 +28,7 @@ define([
       });
 
       test('#verifyEmail', function () {
-        var user = 'test3' + Date.now();
+        var user = 'test3' + new Date().getTime();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
         var uid;
@@ -55,7 +55,7 @@ define([
       });
 
       test('#verifyEmailCheckStatus', function () {
-        var user = 'test4' + Date.now();
+        var user = 'test4' + new Date().getTime();
         var email = user + '@restmail.net';
         var password = 'iliketurtles';
         var uid;

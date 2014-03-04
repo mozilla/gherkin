@@ -10,8 +10,9 @@ define([
   'tests/addons/restmail',
   'tests/addons/accountHelper',
   'tests/mocks/request',
-  'tests/mocks/errors'
-], function (config, XHR, SinonResponder, FxAccountClient, Restmail, AccountHelper, RequestMocks, ErrorMocks) {
+  'tests/mocks/errors',
+  'tests/addons/sinon'
+], function (config, XHR, SinonResponder, FxAccountClient, Restmail, AccountHelper, RequestMocks, ErrorMocks, Sinon) {
 
   function Environment() {
     var self = this;
@@ -30,7 +31,7 @@ define([
     } else {
       this.requests = [];
       // switch to the fake XHR
-      this.xhr = SinonResponder.useFakeXMLHttpRequest();
+      this.xhr = Sinon.useFakeXMLHttpRequest();
       this.xhr.onCreate = function (xhr) {
         self.requests.push(xhr);
       };

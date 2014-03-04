@@ -20,7 +20,7 @@ define([
   };
 
   intern.environments = [
-    { browserName: 'firefox', version: '25' }
+    { browserName: 'internet-explorer' }
   ];
 
   return intern;
