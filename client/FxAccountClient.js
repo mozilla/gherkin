@@ -771,6 +771,68 @@ define([
     return this.request.send('/get_random_bytes', 'POST');
   };
 
+  /**
+   * Submits an account unlock code that was previously sent to a user's recovery email.
+   * If correct, the account will be unlocked.
+   *
+   * @method accountUnlockVerifyCode
+   * @param {String} uid - account identifier
+   * @param {String} code - the verification code
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.accountUnlockVerifyCode = function(uid, code) {
+    required(uid, 'uid');
+    required(code, 'unlock code');
+
+    var data = {
+      uid: uid,
+      code: code
+    };
+
+    return this.request.send('/account/unlock/verify_code', 'POST', null, data);
+  };
+
+  /**
+   * Re-sends an account unlock code to the account's recovery email address.
+   *
+   * @method accountUnlockResendCode
+   * @param {String} email - the recovery email for this account
+   * @param {Object} [options={}] Options
+   *   @param {String} [options.service] - indicates the relying service that
+   *   the user was interacting with that triggered the account lockout message
+   *   @param {String} [options.redirectTo] - a URL that the client should be
+   *   redirected to after handling the request
+   *   @param {String} [options.resume] - opaque url-encoded string that will
+   *   be included in the verification link as a querystring parameter, useful
+   *   for continuing an OAuth flow for example.
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.accountUnlockResendCode = function(email, options) {
+    required(email, 'email');
+
+    var data = {
+      email: email
+    };
+
+    if (options) {
+      if (options.service) {
+        data.service = options.service;
+      }
+
+      if (options.redirectTo) {
+        data.redirectTo = options.redirectTo;
+      }
+
+      if (options.resume) {
+        data.resume = options.resume;
+      }
+    }
+
+    return this.request.send('/account/unlock/resend_code', 'POST', null, data);
+  };
+
+
+
   return FxAccountClient;
 });
 

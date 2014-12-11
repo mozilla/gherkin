@@ -323,6 +323,44 @@ define([
         });
       });
 
+      test('#accountUnlockResendCode with no email', function () {
+        assert.throws(function () {
+          client.accountUnlockResendCode();
+        });
+      });
+
+      test('#accountUnlockResendCode with no options', function () {
+        return respond(client.accountUnlockResendCode('testuser@testuser.com'), RequestMocks.accountUnlockResendCode);
+      });
+
+      test('#accountUnlockResendCode with all options', function () {
+        var opts = {
+          service: 'sync',
+          redirectTo: 'https://sync.firefox.com/after_reset',
+          resume: 'resumejwt'
+        };
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (account) {
+            return respond(client.accountUnlockResendCode(account.input.email, opts), RequestMocks.accountUnlockResendCode);
+          });
+      });
+
+      test('#accountUnlockVerifyCode with no uid', function () {
+        assert.throws(function () {
+          client.accountUnlockVerifyCode(undefined, 'code');
+        });
+      });
+
+      test('#accountUnlockVerifyCode with no code', function () {
+        assert.throws(function () {
+          client.accountUnlockVerifyCode('uid', undefined);
+        });
+      });
+
+      test('#accountUnlockVerifyCode', function () {
+        return respond(client.accountUnlockVerifyCode('uid', 'code'), RequestMocks.accountUnlockVerifyCode);
+      });
     });
   }
 });
