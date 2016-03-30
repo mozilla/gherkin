@@ -871,7 +871,7 @@ define([
    * @param {String} email
    * @param {String} newPassword
    * @param {Object} oldCreds This object should consists of `oldUnwrapBKey`, `keyFetchToken` and `passwordChangeToken`.
-   * @param {Boolean} [options.keys] If `true`, calls the API with `?keys=true` to get the keyFetchToken 
+   * @param {Boolean} [options.keys] If `true`, calls the API with `?keys=true` to get the keyFetchToken
    * @return {Promise} A promise that will be fulfilled with JSON of `xhr.responseText`
    */
   FxAccountClient.prototype._passwordChangeFinish = function(email, newPassword, oldCreds, keys) {
