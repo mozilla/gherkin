@@ -1048,15 +1048,23 @@ define([
    *
    * @method deviceList
    * @param {String} sessionToken sessionToken obtained from signIn
+   * @param {Object} options [options={}] Options
+   *   @param {String} [options.language] Preferred user locale
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
-  FxAccountClient.prototype.deviceList = function (sessionToken) {
+  FxAccountClient.prototype.deviceList = function (sessionToken, options) {
+    options = options || {};
     required(sessionToken, 'sessionToken');
+
+    var queryParams = '';
+    if (options.language) {
+      queryParams = '?language=' + options.language;
+    }
 
     var request = this.request;
     return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
       .then(function(creds) {
-        return request.send('/account/devices', 'GET', creds);
+        return request.send('/account/devices' + queryParams, 'GET', creds);
       });
   };
 
