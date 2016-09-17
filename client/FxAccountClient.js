@@ -216,10 +216,10 @@ define([
           if (!options.sendEmailIfUnverified) {
             options.sendEmailIfUnverified = false;
           }
-          endpoint = endpoint + '&sendEmailIfUnverified=' + options.sendEmailIfUnverified;
+          endpoint = endpoint + '?sendEmailIfUnverified=' + options.sendEmailIfUnverified;
 
           if (options.keys) {
-            endpoint += '?keys=true';
+            endpoint += '&keys=true';
           }
 
           var data = {
