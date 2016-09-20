@@ -42,12 +42,12 @@ define([
     signUpKeys: {
       status: 200,
       headers: {},
-      body: '{ "uid": "0577e7a5fbf448e3bc60dacbff5dcd5c", "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d","keyFetchToken": "b1f4182d7e072567a1dbe682043a16932a84b7f4ca3b95e471a34806c87e4130"  }'
+      body: '{ "uid": "0577e7a5fbf448e3bc60dacbff5dcd5c", "sessionToken": "27cd4f4a4aa03d7d186a2ec81cbf19d5c8a604713362df9ee15c4f4a4aa03d7d","keyFetchToken": "b1f4182d7e072567a1dbe682043a16932a84b7f4ca3b95e471a34806c87e4130"}'
     },
     signIn: {
       status: 200,
       headers: {},
-      body: '{"uid":"9c8e5cf6915949c1b063b88fa0c53d05","verified":true,"sessionToken":"6544062365c5ebee16e3c5e15448139851583b5f5f7b6bd6d4a37bac41665e8a"}'
+      body: '{"uid":"9c8e5cf6915949c1b063b88fa0c53d05","verified":true,"sessionToken":"6544062365c5ebee16e3c5e15448139851583b5f5f7b6bd6d4a37bac41665e8a", "emailSent": false}'
     },
     signInEmailSent: {
       status: 200,
@@ -75,6 +75,10 @@ define([
     mail: {
       status: 200,
       body: '[{"html":"Mocked code=9001"}]'
+    },
+    mailUnverifiedSignin: {
+      status: 200,
+      body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}]'
     },
     mailSignUpLang: {
       status: 200,
