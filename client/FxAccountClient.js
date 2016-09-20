@@ -177,7 +177,7 @@ define([
    *   Service being signed into
    *   @param {String} [options.reason]
    *   Reason for sign in. Can be one of: `signin`, `password_check`,
-   *   `password_change`, `password_reset`, `account_unlock`.
+   *   `password_change`, `password_reset`
    *   @param {String} [options.redirectTo]
    *   a URL that the client should be redirected to after handling the request
    *   @param {String} [options.resume]
@@ -530,18 +530,6 @@ define([
    *   is required if `options.keys` is true.
    *   @param {Boolean} [options.sessionToken]
    *   If `true`, a new `sessionToken` is provisioned.
-   *   @param {Object} [options.metricsContext={}] Metrics context metadata
-   *     @param {String} options.metricsContext.flowId identifier for the current event flow
-   *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
-   *     @param {String} [options.metricsContext.context] context identifier
-   *     @param {String} [options.metricsContext.entrypoint] entrypoint identifier
-   *     @param {String} [options.metricsContext.migration] migration identifier
-   *     @param {String} [options.metricsContext.service] service identifier
-   *     @param {String} [options.metricsContext.utmCampaign] marketing campaign identifier
-   *     @param {String} [options.metricsContext.utmContent] marketing campaign content identifier
-   *     @param {String} [options.metricsContext.utmMedium] marketing campaign medium
-   *     @param {String} [options.metricsContext.utmSource] marketing campaign source
-   *     @param {String} [options.metricsContext.utmTerm] marketing campaign search term
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.accountReset = function(email, newPassword, accountResetToken, options) {
@@ -550,10 +538,6 @@ define([
     var unwrapBKey;
 
     options = options || {};
-
-    if (options.metricsContext) {
-      data.metricsContext = metricsContext.marshall(options.metricsContext);
-    }
 
     if (options.sessionToken) {
       data.sessionToken = options.sessionToken;
@@ -754,18 +738,7 @@ define([
    * @param {Object} publicKey The key to sign
    * @param {int} duration Time interval from now when the certificate will expire in milliseconds
    * @param {Object} [options={}] Options
-   *   @param {Object} [options.metricsContext={}] Metrics context metadata
-   *     @param {String} options.metricsContext.flowId identifier for the current event flow
-   *     @param {Number} options.metricsContext.flowBeginTime flow.begin event time
-   *     @param {String} [options.metricsContext.context] context identifier
-   *     @param {String} [options.metricsContext.entrypoint] entrypoint identifier
-   *     @param {String} [options.metricsContext.migration] migration identifier
-   *     @param {String} [options.metricsContext.service] service identifier
-   *     @param {String} [options.metricsContext.utmCampaign] marketing campaign identifier
-   *     @param {String} [options.metricsContext.utmContent] marketing campaign content identifier
-   *     @param {String} [options.metricsContext.utmMedium] marketing campaign medium
-   *     @param {String} [options.metricsContext.utmSource] marketing campaign source
-   *     @param {String} [options.metricsContext.utmTerm] marketing campaign search term
+   *   @param {String} [service=''] The requesting service, sent via the query string
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.certificateSign = function(sessionToken, publicKey, duration, options) {
@@ -781,13 +754,14 @@ define([
 
     options = options || {};
 
-    if (options.metricsContext) {
-      data.metricsContext = metricsContext.marshall(options.metricsContext);
+    var queryString = '';
+    if (options.service) {
+      queryString = '?service=' + encodeURIComponent(options.service);
     }
 
     return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
       .then(function(creds) {
-        return self.request.send('/certificate/sign', 'POST', creds, data);
+        return self.request.send('/certificate/sign' + queryString, 'POST', creds, data);
       });
   };
 
@@ -922,11 +896,17 @@ define([
     required(keys, 'keys');
     required(keys.kB, 'keys.kB');
 
-    var p1 = credentials.setup(email, newPassword);
-    var p2 = hawkCredentials(oldCreds.passwordChangeToken, 'passwordChangeToken',  HKDF_SIZE);
+    var defers = [];
+    defers.push(credentials.setup(email, newPassword));
+    defers.push(hawkCredentials(oldCreds.passwordChangeToken, 'passwordChangeToken',  HKDF_SIZE));
 
-    return P.all([p1, p2])
-      .spread(function(newCreds, hawkCreds) {
+    if (options.sessionToken) {
+      // Unbundle session data to get session id
+      defers.push(hawkCredentials(options.sessionToken, 'sessionToken',  HKDF_SIZE));
+    }
+
+    return P.all(defers)
+      .spread(function (newCreds, hawkCreds, sessionData) {
         var newWrapKb = sjcl.codec.hex.fromBits(
           credentials.xor(
             sjcl.codec.hex.toBits(keys.kB),
@@ -939,10 +919,15 @@ define([
           queryParams = '?keys=true';
         }
 
+        var sessionTokenId;
+        if (sessionData && sessionData.id) {
+          sessionTokenId = sessionData.id;
+        }
+
         return self.request.send('/password/change/finish' + queryParams, 'POST', hawkCreds, {
           wrapKb: newWrapKb,
           authPW: sjcl.codec.hex.fromBits(newCreds.authPW),
-          sessionToken: options.sessionToken
+          sessionToken: sessionTokenId
         })
         .then(function (accountData) {
           if (options.keys && accountData.keyFetchToken) {
@@ -962,78 +947,6 @@ define([
   FxAccountClient.prototype.getRandomBytes = function() {
 
     return this.request.send('/get_random_bytes', 'POST');
-  };
-
-  /**
-   * Lock an account - only available in a testing environment.
-   *
-   * @method accountLock
-   * @param {String} email
-   * @param {String} password
-   */
-  FxAccountClient.prototype.accountLock = function (email, password) {
-    required(email, 'email');
-    required(password, 'password');
-
-    var self = this;
-    return credentials.setup(email, password)
-      .then(
-        function (result) {
-          var data = {
-            email: result.emailUTF8,
-            authPW: sjcl.codec.hex.fromBits(result.authPW)
-          };
-
-          return self.request.send('/account/lock', 'POST', null, data);
-        });
-  };
-
-
-  /**
-   * Send an account unlock code
-   *
-   * @method accountUnlockResendCode
-   * @param {String} email
-   * @param {Object} [options={}] Options
-   */
-  FxAccountClient.prototype.accountUnlockResendCode = function (email, options) {
-    required(email, 'email');
-
-    var data = {
-      email: email
-    };
-    if (options) {
-      if (options.service) {
-        data.service = options.service;
-      }
-
-      if (options.redirectTo) {
-        data.redirectTo = options.redirectTo;
-      }
-
-      if (options.resume) {
-        data.resume = options.resume;
-      }
-    }
-
-    return this.request.send('/account/unlock/resend_code', 'POST', null, data);
-  };
-
-  /**
-   * Verify an account unlock code
-   *
-   * @method accountUnlockVerifyCode
-   * @param {String} uid
-   * @param {String} code
-   */
-  FxAccountClient.prototype.accountUnlockVerifyCode = function (uid, code) {
-    required(uid, 'uid');
-    required(code, 'code');
-
-    return this.request.send('/account/unlock/verify_code', 'POST', null, {
-      uid: uid,
-      code: code
-    });
   };
 
   /**
