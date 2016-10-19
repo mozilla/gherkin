@@ -543,7 +543,7 @@ define([
       code: code
     };
 
-    if(options && options.metricsContext) {
+    if (options && options.metricsContext) {
       data.metricsContext = metricsContext.marshall(options.metricsContext);
     }
 
