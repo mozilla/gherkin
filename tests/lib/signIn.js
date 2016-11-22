@@ -124,6 +124,8 @@ define([
           })
           .then(
             function (emails) {
+              console.error('!!!!!   P H I L   !!!!!', emails.length);
+              console.error(emails[0].html);
               var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
               var redirectTo = emails[0].html.match(/redirectTo=([A-Za-z0-9]+)/)[1];
 
@@ -159,6 +161,8 @@ define([
           })
           .then(
             function (emails) {
+              console.error('!!!!!   P H I L   !!!!!', emails.length);
+              console.error(emails[0].html);
               var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
               var resume = emails[0].html.match(/resume=([A-Za-z0-9]+)/)[1];
 
