@@ -72,6 +72,41 @@ define([
         );
       });
 
+      test('#sessions', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (account) {
+            return respond(client.sessions(account.signIn.sessionToken), RequestMocks.sessions);
+          })
+          .then(
+            function (res) {
+              assert.equal(res.length, 2);
+              assert.ok(res[0].id);
+              assert.ok(res[0].userAgent);
+              assert.ok(res[0].deviceName);
+            },
+            assert.notOk
+          );
+      });
+
+
+      test('#sessions error', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (account) {
+            var fakeToken = 'e838790265a45f6ee1130070d57d67d9bb20953706f73af0e34b0d4d92f10000';
+
+            return respond(client.sessions(fakeToken), ErrorMocks.invalidAuthToken);
+          })
+          .then(
+            assert.notOk,
+            function (err) {
+              assert.equal(err.code, 401);
+              assert.equal(err.errno, 110);
+            }
+          );
+      });
+
     });
   }
 });

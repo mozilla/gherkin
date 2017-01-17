@@ -1088,6 +1088,23 @@ define([
   };
 
   /**
+   * Get a list of user's sessions
+   *
+   * @method sessions
+   * @param {String} sessionToken sessionToken obtained from signIn
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.sessions = function (sessionToken) {
+    required(sessionToken, 'sessionToken');
+
+    var request = this.request;
+    return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
+      .then(function(creds) {
+        return request.send('/account/sessions', 'GET', creds);
+      });
+  };
+
+  /**
    * Send an unblock code
    *
    * @method sendUnblockCode
