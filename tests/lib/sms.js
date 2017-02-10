@@ -9,8 +9,11 @@ define([
   'tests/lib/push-constants'
 ], function (tdd, assert, Environment) {
 
-  var PHONE_NUMBER = '14071234567';
-  var INVITE_USER_MESSAGE_ID = '1';
+  // These tests are intended to run against a mock auth-server. To test
+  // against a local auth-server, you will need to have it correctly
+  // configured to send sms and specify a real phone number here.
+  var PHONE_NUMBER = '+14071234567';
+  var MESSAGE_ID = 1;
 
   with (tdd) {
     suite('sms', function () {
@@ -35,20 +38,14 @@ define([
             return respond(client.sendSms(
               account.signIn.sessionToken,
               PHONE_NUMBER,
-              INVITE_USER_MESSAGE_ID
+              MESSAGE_ID
             ), RequestMocks.sendSmsConnectDevice);
           })
           .then(
-            function(res) {
-              // TODO Define the actual response
-              assert.equal(res.phoneNumber, PHONE_NUMBER);
-              assert.equal(res.messageId, INVITE_USER_MESSAGE_ID);
-              assert.equal(res.sent, true);
+            function (resp) {
+              assert.ok(resp);
             },
-            function (err) {
-              console.log(err);
-              assert.notOk();
-            }
+            assert.notOk
           );
       });
     });

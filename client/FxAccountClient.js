@@ -1170,9 +1170,10 @@ define([
       }
     }
 
+    var request = this.request;
     return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
       .then(function(creds) {
-        return this.request.send('/sms', 'POST', creds, data, requestOpts);
+        return request.send('/sms', 'POST', creds, data, requestOpts);
       });
   };
 

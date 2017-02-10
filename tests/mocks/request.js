@@ -257,7 +257,7 @@ define([
     },
     sendSmsConnectDevice: {
       status: 200,
-      body: '{"phoneNumber":"14071234567","messageId":"1", "sent": true}'
+      body: '{}'
     }
   };
 });
