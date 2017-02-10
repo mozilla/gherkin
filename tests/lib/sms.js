@@ -12,6 +12,11 @@ define([
   // These tests are intended to run against a mock auth-server. To test
   // against a local auth-server, you will need to have it correctly
   // configured to send sms and specify a real phone number here.
+  var env = new Environment();
+  if (env.useRemoteServer) {
+    return;
+  }
+
   var PHONE_NUMBER = '+14071234567';
   var MESSAGE_ID = 1;
 
@@ -23,7 +28,7 @@ define([
       var RequestMocks;
 
       beforeEach(function () {
-        var env = new Environment();
+        env = new Environment();
         accountHelper = env.accountHelper;
         respond = env.respond;
         client = env.client;
