@@ -178,12 +178,20 @@ define([
         {
           id: 'device1',
           userAgent: 'agent1',
-          deviceName: 'name1'
+          deviceName: 'name1',
+          deviceType: 'desktop',
+          isDevice: false,
+          lastAccessTime: 100,
+          lastAccessTimeFormatted: 'a few seconds ago'
         },
         {
           id: 'device2',
           userAgent: 'agent2',
-          deviceName: 'name2'
+          deviceName: 'name2',
+          deviceType: 'desktop',
+          isDevice: false,
+          lastAccessTime: 101,
+          lastAccessTimeFormatted: 'a few seconds ago'
         }
       ])
     },

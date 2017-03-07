@@ -81,9 +81,14 @@ define([
           .then(
             function (res) {
               assert.equal(res.length, 2);
-              assert.ok(res[0].id);
-              assert.ok(res[0].userAgent);
-              assert.ok(res[0].deviceName);
+              var s = res[0];
+              assert.ok(s.id);
+              assert.ok(s.userAgent);
+              assert.ok(s.deviceName);
+              assert.ok(s.deviceType);
+              assert.equal(s.isDevice, false);
+              assert.ok(s.lastAccessTime);
+              assert.ok(s.lastAccessTimeFormatted);
             },
             assert.notOk
           );
