@@ -1226,6 +1226,49 @@ define([
       });
   };
 
+  FxAccountClient.prototype.getEmails = function (sessionToken) {
+
+    required(sessionToken, 'sessionToken');
+
+    var request = this.request;
+    return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
+      .then(function(creds) {
+        return request.send('/recovery_email/emails', 'GET', creds, {}, {});
+      });
+  };
+
+  FxAccountClient.prototype.createEmail = function (sessionToken, email) {
+
+    required(sessionToken, 'sessionToken');
+    required(sessionToken, 'email');
+
+    var data = {
+      email: email
+    };
+
+    var request = this.request;
+    return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
+      .then(function(creds) {
+        return request.send('/recovery_email/create', 'POST', creds, data, {});
+      });
+  };
+
+  FxAccountClient.prototype.deleteEmail = function (sessionToken, email) {
+
+    required(sessionToken, 'sessionToken');
+    required(sessionToken, 'email');
+
+    var data = {
+      email: email
+    };
+
+    var request = this.request;
+    return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
+      .then(function(creds) {
+        return request.send('/recovery_email/destroy', 'POST', creds, data, {});
+      });
+  };
+
   /**
    * Check for a required argument. Exposed for unit testing.
    *
