@@ -281,6 +281,22 @@ define([
     sendSmsConnectDevice: {
       status: 200,
       body: '{}'
+    },
+    getEmails: {
+      status: 200,
+      body: '[{"email": "a@b.com", "isVerified": true, "isPrimary": true}, {"email": "another@email.com", "isVerified": false, "isPrimary": false}]'
+    },
+    getEmailsOne: {
+      status: 200,
+      body: '[{"email": "a@b.com", "isVerified": true, "isPrimary": true}]'
+    },
+    createEmail: {
+      status: 200,
+      body: '{}'
+    },
+    deleteEmail: {
+      status: 200,
+      body: '{}'
     }
   };
 });
