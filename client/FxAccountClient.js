@@ -1208,8 +1208,7 @@ define([
    * @method smsStatus
    * @param {String} sessionToken SessionToken obtained from signIn
    * @param {Object} [options={}] Options
-   *   @param {String} [options.country] country Country to force. Will be used to test
-   *     whether SMS is available and returned in `country` field.
+   *   @param {String} [options.country] country Country to force for testing.
    */
   FxAccountClient.prototype.smsStatus = function (sessionToken, options) {
     required(sessionToken, 'sessionToken');
