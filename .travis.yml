@@ -38,7 +38,9 @@ branches:
     - release
     - /^.*-docs$/
 
-install: npm run-script setup
+install:
+  - npm run-script setup
+  - tests/ci/install-tunnel.sh
 script:
   - if [ $SERVER == "mock" ]; then grunt travis; fi
   - if [ $SERVER == "local" ]; then ./tests/ci/travis-auth-server-test.sh; fi
