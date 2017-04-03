@@ -1227,6 +1227,67 @@ define([
   };
 
   /**
+   * Get all the emails associated with user that belongs to the
+   * session.
+   *
+   * @method getEmails
+   * @param {String} sessionToken SessionToken obtained from signIn
+   */
+  FxAccountClient.prototype.getEmails = function (sessionToken) {
+    required(sessionToken, 'sessionToken');
+
+    var request = this.request;
+    return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
+      .then(function(creds) {
+        return request.send('/recovery_email/emails', 'GET', creds, {}, {});
+      });
+  };
+
+  /**
+   * Create a new email for account that belongs to this passed session.
+   *
+   * @method createEmail
+   * @param {String} sessionToken SessionToken obtained from signIn
+   * @param {String} email new email to be added
+   */
+  FxAccountClient.prototype.createEmail = function (sessionToken, email) {
+    required(sessionToken, 'sessionToken');
+    required(sessionToken, 'email');
+
+    var data = {
+      email: email
+    };
+
+    var request = this.request;
+    return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
+      .then(function(creds) {
+        return request.send('/recovery_email/create', 'POST', creds, data, {});
+      });
+  };
+
+  /**
+   * Remove the email address from the user account
+   *
+   * @method deleteEmail
+   * @param {String} sessionToken SessionToken obtained from signIn
+   * @param {String} email email to be removed
+   */
+  FxAccountClient.prototype.deleteEmail = function (sessionToken, email) {
+    required(sessionToken, 'sessionToken');
+    required(sessionToken, 'email');
+
+    var data = {
+      email: email
+    };
+
+    var request = this.request;
+    return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
+      .then(function(creds) {
+        return request.send('/recovery_email/destroy', 'POST', creds, data, {});
+      });
+  };
+
+  /**
    * Check for a required argument. Exposed for unit testing.
    *
    * @param {Value} val - value to check
