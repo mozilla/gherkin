@@ -1239,7 +1239,7 @@ define([
     var request = this.request;
     return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
       .then(function(creds) {
-        return request.send('/recovery_email/emails', 'GET', creds, {}, {});
+        return request.send('/recovery_emails', 'GET', creds, {}, {});
       });
   };
 
@@ -1261,7 +1261,7 @@ define([
     var request = this.request;
     return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
       .then(function(creds) {
-        return request.send('/recovery_email/create', 'POST', creds, data, {});
+        return request.send('/recovery_email', 'POST', creds, data, {});
       });
   };
 
