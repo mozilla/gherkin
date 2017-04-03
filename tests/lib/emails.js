@@ -14,6 +14,7 @@ define([
     suite('emails', function () {
       var accountHelper;
       var respond;
+      var mail;
       var client;
       var RequestMocks;
 
@@ -21,6 +22,7 @@ define([
         var env = new Environment();
         accountHelper = env.accountHelper;
         respond = env.respond;
+        mail = env.mail;
         client = env.client;
         RequestMocks = env.RequestMocks;
       });
@@ -28,8 +30,17 @@ define([
       test('#createEmail, #getEmails and #deleteEmail', function () {
         var account;
         return accountHelper.newVerifiedAccount()
-          .then(function (accountRes) {
-            account = accountRes;
+          .then(function(res) {
+            account = res;
+            // signin confirmation flow
+            return respond(mail.wait(account.input.user, 2), RequestMocks.mailUnverifiedSignin);
+          })
+          .then(function (emails) {
+            var code = emails[1].html.match(/code=([A-Za-z0-9]+)/)[1];
+
+            return respond(client.verifyCode(account.signIn.uid, code), RequestMocks.verifyCode);
+          })
+          .then(function () {
             return respond(client.createEmail(
               account.signIn.sessionToken,
               USER_SECONDARY_EMAIL
