@@ -8,7 +8,7 @@ define([
   'tests/addons/environment'
 ], function (tdd, assert, Environment) {
 
-  const USER_SECONDARY_EMAIL = 'another@email.com';
+  var USER_SECONDARY_EMAIL = 'another@email.com';
 
   with (tdd) {
     suite('emails', function () {
