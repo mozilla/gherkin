@@ -329,6 +329,10 @@ define([
     required(sessionToken, 'sessionToken');
 
     if (options) {
+      if (options.email) {
+        data.email = options.email;
+      }
+
       if (options.service) {
         data.service = options.service;
       }
@@ -1227,19 +1231,19 @@ define([
   };
 
   /**
-   * Get all the emails associated with user that belongs to the
+   * Get all the recovery emails associated with user that belongs to the
    * session.
    *
-   * @method getEmails
+   * @method recoveryEmails
    * @param {String} sessionToken SessionToken obtained from signIn
    */
-  FxAccountClient.prototype.getEmails = function (sessionToken) {
+  FxAccountClient.prototype.recoveryEmails = function (sessionToken) {
     required(sessionToken, 'sessionToken');
 
     var request = this.request;
     return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
       .then(function(creds) {
-        return request.send('/recovery_emails', 'GET', creds, {}, {});
+        return request.send('/recovery_emails', 'GET', creds);
       });
   };
 
@@ -1261,7 +1265,7 @@ define([
     var request = this.request;
     return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
       .then(function(creds) {
-        return request.send('/recovery_email', 'POST', creds, data, {});
+        return request.send('/recovery_email', 'POST', creds, data);
       });
   };
 
