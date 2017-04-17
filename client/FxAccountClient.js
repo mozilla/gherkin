@@ -283,6 +283,10 @@ define([
       if (options.reminder) {
         data.reminder = options.reminder;
       }
+
+      if (options.type) {
+        data.type = options.type;
+      }
     }
 
     return this.request.send('/recovery_email/verify_code', 'POST', null, data);
