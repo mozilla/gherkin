@@ -355,6 +355,58 @@ define([
   };
 
   /**
+   * Sends a sign-in verification code to the account's recovery email address.
+   *
+   * @method confirmSignInSendCode
+   * @param {String} sessionToken sessionToken obtained from signIn
+   * @param {Object} [options={}] Options
+   *   @param {String} [options.service]
+   *   Opaque alphanumeric token to be included in verification links
+   *   @param {String} [options.redirectTo]
+   *   a URL that the client should be redirected to after handling the request
+   *   @param {String} [options.resume]
+   *   Opaque url-encoded string that will be included in the verification link
+   *   as a querystring parameter, useful for continuing an OAuth flow for
+   *   example.
+   *   @param {String} [options.lang]
+   *   set the language for the 'Accept-Language' header
+   * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
+   */
+  FxAccountClient.prototype.confirmSignInSendCode = function(sessionToken, options) {
+    var self = this;
+    var data = {};
+    var requestOpts = {};
+
+    required(sessionToken, 'sessionToken');
+
+    if (options) {
+      if (options.service) {
+        data.service = options.service;
+      }
+
+      if (options.redirectTo) {
+        data.redirectTo = options.redirectTo;
+      }
+
+      if (options.resume) {
+        data.resume = options.resume;
+      }
+
+      if (options.lang) {
+        requestOpts.headers = {
+          'Accept-Language': options.lang
+        };
+      }
+    }
+
+    return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
+      .then(function(creds) {
+        // TODO Update when endpoint is decided
+        return self.request.send('/recovery_email/confirm_signin_code', 'POST', creds, data, requestOpts);
+      });
+  };
+
+  /**
    * Used to ask the server to send a recovery code.
    * The API returns passwordForgotToken to the client.
    *
