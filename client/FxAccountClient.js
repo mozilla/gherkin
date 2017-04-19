@@ -264,6 +264,8 @@ define([
    *   Service being signed into
    *   @param {String} [options.reminder]
    *   Reminder that was used to verify the account
+   *   @param {String} [options.type]
+   *   Type of code being verified, only supports `secondary` otherwise will verify account/sign-in
    * @return {Promise} A promise that will be fulfilled with JSON `xhr.responseText` of the request
    */
   FxAccountClient.prototype.verifyCode = function(uid, code, options) {
@@ -313,6 +315,8 @@ define([
    * @method recoveryEmailResendCode
    * @param {String} sessionToken sessionToken obtained from signIn
    * @param {Object} [options={}] Options
+   *   @param {String} [options.email]
+   *   Code will be resent to this email, only used for secondary email codes
    *   @param {String} [options.service]
    *   Opaque alphanumeric token to be included in verification links
    *   @param {String} [options.redirectTo]
@@ -1235,8 +1239,7 @@ define([
   };
 
   /**
-   * Get all the recovery emails associated with user that belongs to the
-   * session.
+   * Get the recovery emails associated with the signed in account.
    *
    * @method recoveryEmails
    * @param {String} sessionToken SessionToken obtained from signIn
@@ -1252,13 +1255,13 @@ define([
   };
 
   /**
-   * Create a new email for account that belongs to this passed session.
+   * Create a new recovery email for the signed in account.
    *
-   * @method createEmail
+   * @method recoveryEmailAdd
    * @param {String} sessionToken SessionToken obtained from signIn
    * @param {String} email new email to be added
    */
-  FxAccountClient.prototype.createEmail = function (sessionToken, email) {
+  FxAccountClient.prototype.recoveryEmailCreate = function (sessionToken, email) {
     required(sessionToken, 'sessionToken');
     required(sessionToken, 'email');
 
@@ -1274,13 +1277,13 @@ define([
   };
 
   /**
-   * Remove the email address from the user account
+   * Remove the recovery email for the signed in account.
    *
-   * @method deleteEmail
+   * @method recoveryEmailDestroy
    * @param {String} sessionToken SessionToken obtained from signIn
    * @param {String} email email to be removed
    */
-  FxAccountClient.prototype.deleteEmail = function (sessionToken, email) {
+  FxAccountClient.prototype.recoveryEmailDestroy = function (sessionToken, email) {
     required(sessionToken, 'sessionToken');
     required(sessionToken, 'email');
 

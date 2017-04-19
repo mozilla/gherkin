@@ -302,11 +302,11 @@ define([
       status: 200,
       body: '[{"email": "a@b.com", "isVerified": true, "isPrimary": true}, {"email": "another@email.com", "verified": true, "isPrimary": false}]'
     },
-    createEmail: {
+    recoveryEmailCreate: {
       status: 200,
       body: '{}'
     },
-    deleteEmail: {
+    recoveryEmailDestroy: {
       status: 200,
       body: '{}'
     }

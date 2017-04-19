@@ -32,7 +32,7 @@ define([
         user2Email = user2 + '@restmail.net';
       });
 
-      function createEmail() {
+      function recoveryEmailCreate() {
         return accountHelper.newVerifiedAccount()
           .then(function (res) {
             account = res;
@@ -45,10 +45,10 @@ define([
             return respond(client.verifyCode(account.signIn.uid, code), RequestMocks.verifyCode);
           })
           .then(function () {
-            return respond(client.createEmail(
+            return respond(client.recoveryEmailCreate(
               account.signIn.sessionToken,
               user2Email
-            ), RequestMocks.createEmail);
+            ), RequestMocks.recoveryEmailCreate);
           });
       }
 
@@ -57,8 +57,8 @@ define([
         assert.notOk();
       }
 
-      test('#createEmail', function () {
-        return createEmail()
+      test('#recoveryEmailCreate', function () {
+        return recoveryEmailCreate()
           .then(
             function (res) {
               assert.ok(res);
@@ -68,7 +68,7 @@ define([
       });
 
       test('#recoveryEmails', function () {
-        return createEmail()
+        return recoveryEmailCreate()
           .then(
             function (res) {
               assert.ok(res);
@@ -89,7 +89,7 @@ define([
       });
 
       test('#verifyCode', function () {
-        return createEmail()
+        return recoveryEmailCreate()
           .then(
             function (res) {
               assert.ok(res);
@@ -123,8 +123,8 @@ define([
           );
       });
 
-      test('#deleteEmail', function () {
-        return createEmail()
+      test('#recoveryEmailDestroy', function () {
+        return recoveryEmailCreate()
           .then(
             function (res) {
               assert.ok(res);
@@ -141,10 +141,10 @@ define([
               assert.equal(res.length, 2, 'returned two email');
               assert.equal(res[1].verified, false, 'returned not verified');
 
-              return respond(client.deleteEmail(
+              return respond(client.recoveryEmailDestroy(
                 account.signIn.sessionToken,
                 user2Email
-              ), RequestMocks.deleteEmail);
+              ), RequestMocks.recoveryEmailDestroy);
             },
             handleError
           )
