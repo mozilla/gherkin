@@ -8,7 +8,8 @@ define([
   'tests/addons/environment'
 ], function (tdd, assert, Environment) {
 
-  var USER_SECONDARY_EMAIL = 'another@email.com';
+  var user2;
+  var user2Email;
 
   with (tdd) {
     suite('emails', function () {
@@ -17,6 +18,7 @@ define([
       var mail;
       var client;
       var RequestMocks;
+      var account;
 
       beforeEach(function () {
         var env = new Environment();
@@ -25,12 +27,14 @@ define([
         mail = env.mail;
         client = env.client;
         RequestMocks = env.RequestMocks;
+
+        user2 = 'anotherEmail' + new Date().getTime();
+        user2Email = user2 + '@restmail.net';
       });
 
-      test('#createEmail, #getEmails and #deleteEmail', function () {
-        var account;
+      function createEmail() {
         return accountHelper.newVerifiedAccount()
-          .then(function(res) {
+          .then(function (res) {
             account = res;
             // signin confirmation flow
             return respond(mail.wait(account.input.user, 2), RequestMocks.mailUnverifiedSignin);
@@ -43,56 +47,123 @@ define([
           .then(function () {
             return respond(client.createEmail(
               account.signIn.sessionToken,
-              USER_SECONDARY_EMAIL
+              user2Email
             ), RequestMocks.createEmail);
-          })
+          });
+      }
+
+      function handleError(err) {
+        console.log(err);
+        assert.notOk();
+      }
+
+      test('#createEmail', function () {
+        return createEmail()
           .then(
-            function(res) {
+            function (res) {
               assert.ok(res);
-              return respond(client.getEmails(
-                account.signIn.sessionToken
-              ), RequestMocks.getEmails);
             },
-            function (err) {
-              console.log(err);
-              assert.notOk();
-            }
+            handleError
+          );
+      });
+
+      test('#recoveryEmails', function () {
+        return createEmail()
+          .then(
+            function (res) {
+              assert.ok(res);
+              return respond(client.recoveryEmails(
+                account.signIn.sessionToken
+              ), RequestMocks.recoveryEmailsUnverified);
+            },
+            handleError
           )
           .then(
-            function(res) {
+            function (res) {
               assert.ok(res);
               assert.equal(res.length, 2, 'returned two emails');
+              assert.equal(res[1].verified, false, 'returned not verified');
+            },
+            handleError
+          );
+      });
+
+      test('#verifyCode', function () {
+        return createEmail()
+          .then(
+            function (res) {
+              assert.ok(res);
+
+              return respond(mail.wait(user2, 1), RequestMocks.mailUnverifiedEmail);
+            },
+            handleError
+          )
+          .then(function (emails) {
+            var code = emails[0].html.match(/code=([A-Za-z0-9]+)/)[1];
+
+            return respond(client.verifyCode(account.signIn.uid, code, {type: 'secondary'}), RequestMocks.verifyCode);
+          })
+          .then(
+            function (res) {
+              assert.ok(res);
+
+              return respond(client.recoveryEmails(
+                account.signIn.sessionToken
+              ), RequestMocks.recoveryEmailsVerified);
+            },
+            handleError
+          )
+          .then(
+            function (res) {
+              assert.ok(res);
+              assert.equal(res.length, 2, 'returned one email');
+              assert.equal(res[1].verified, true, 'returned not verified');
+            },
+            handleError
+          );
+      });
+
+      test('#deleteEmail', function () {
+        return createEmail()
+          .then(
+            function (res) {
+              assert.ok(res);
+
+              return respond(client.recoveryEmails(
+                account.signIn.sessionToken
+              ), RequestMocks.recoveryEmailsUnverified);
+            },
+            handleError
+          )
+          .then(
+            function (res) {
+              assert.ok(res);
+              assert.equal(res.length, 2, 'returned two email');
+              assert.equal(res[1].verified, false, 'returned not verified');
+
               return respond(client.deleteEmail(
                 account.signIn.sessionToken,
-                USER_SECONDARY_EMAIL
+                user2Email
               ), RequestMocks.deleteEmail);
             },
-            function (err) {
-              console.log(err);
-              assert.notOk();
-            }
+            handleError
           )
           .then(
-            function(res) {
+            function (res) {
               assert.ok(res);
-              return respond(client.getEmails(
+
+              return respond(client.recoveryEmails(
                 account.signIn.sessionToken
-              ), RequestMocks.getEmailsOne);
+              ), RequestMocks.recoveryEmails);
             },
-            function (err) {
-              console.log(err);
-              assert.notOk();
-            }
+            handleError
           )
           .then(
-            function(res) {
+            function (res) {
               assert.ok(res);
               assert.equal(res.length, 1, 'returned one email');
             },
-            function (err) {
-              console.log(err);
-              assert.notOk();
-            }
+            handleError
           );
       });
     });

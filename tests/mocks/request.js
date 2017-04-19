@@ -80,6 +80,10 @@ define([
       status: 200,
       body: '[{"html":"Mocked code=9001"}, {"html":"Mocked code=9001"}]'
     },
+    mailUnverifiedEmail: {
+      status: 200,
+      body: '[{"html":"Mocked code=9001"}]'
+    },
     mailSignUpLang: {
       status: 200,
       body: '[{"html":"Mocked code=9001","headers": {"content-language": "zh-CN" }}]'
@@ -286,13 +290,17 @@ define([
       status: 200,
       body: '{"country":"RO","ok":true}'
     },
-    getEmails: {
-      status: 200,
-      body: '[{"email": "a@b.com", "isVerified": true, "isPrimary": true}, {"email": "another@email.com", "isVerified": false, "isPrimary": false}]'
-    },
-    getEmailsOne: {
+    recoveryEmails: {
       status: 200,
       body: '[{"email": "a@b.com", "isVerified": true, "isPrimary": true}]'
+    },
+    recoveryEmailsUnverified: {
+      status: 200,
+      body: '[{"email": "a@b.com", "isVerified": true, "isPrimary": true}, {"email": "another@email.com", "verified": false, "isPrimary": false}]'
+    },
+    recoveryEmailsVerified: {
+      status: 200,
+      body: '[{"email": "a@b.com", "isVerified": true, "isPrimary": true}, {"email": "another@email.com", "verified": true, "isPrimary": false}]'
     },
     createEmail: {
       status: 200,
