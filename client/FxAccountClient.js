@@ -1294,7 +1294,7 @@ define([
     var request = this.request;
     return hawkCredentials(sessionToken, 'sessionToken',  HKDF_SIZE)
       .then(function(creds) {
-        return request.send('/recovery_email/destroy', 'POST', creds, data, {});
+        return request.send('/recovery_email/destroy', 'POST', creds, data);
       });
   };
 
