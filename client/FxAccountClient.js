@@ -1257,7 +1257,7 @@ define([
   /**
    * Create a new recovery email for the signed in account.
    *
-   * @method recoveryEmailAdd
+   * @method recoveryEmailCreate
    * @param {String} sessionToken SessionToken obtained from signIn
    * @param {String} email new email to be added
    */
