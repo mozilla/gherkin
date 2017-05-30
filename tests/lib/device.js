@@ -154,6 +154,38 @@ define([
           });
       });
 
+      test('#list with language', function () {
+
+        return accountHelper.newVerifiedAccount()
+          .then(function (account) {
+
+            return respond(client.deviceRegister(
+              account.signIn.sessionToken,
+              DEVICE_NAME,
+              DEVICE_TYPE,
+              {
+                deviceCallback: DEVICE_CALLBACK
+              }
+            ), RequestMocks.deviceRegister)
+
+              .then(function (device) {
+                return respond(client.deviceList(account.signIn.sessionToken, {
+                  language: 'en'
+                }), RequestMocks.deviceList);
+              })
+
+              .then(function (devices) {
+                assert.equal(devices.length, 1);
+
+                var device = devices[0];
+                assert.ok(device.id);
+                assert.equal(device.name, DEVICE_NAME);
+                assert.equal(device.pushCallback, DEVICE_CALLBACK);
+                assert.equal(device.type, DEVICE_TYPE);
+              });
+          });
+      });
+
     });
   }
 });
