@@ -13,7 +13,10 @@ define([
 
       return function (returnValue, response) {
         Promise.resolve().then(function () {
-          self.respond(requests[requestIndex++], response);
+          // this has to be here to work in IE
+          setTimeout(function () {
+            self.respond(requests[requestIndex++], response);
+          }, 0);
         });
 
         return returnValue;
