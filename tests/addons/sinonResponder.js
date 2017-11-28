@@ -12,9 +12,9 @@ define([
       var requestIndex = 0;
 
       return function (returnValue, response) {
-        setTimeout(function () {
+        Promise.resolve().then(function () {
           self.respond(requests[requestIndex++], response);
-        }, 0);
+        });
 
         return returnValue;
       };
